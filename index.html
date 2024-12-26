@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Stamper</title>
+</head>
+<body>
+  <h1>PDF Stamper</h1>
+
+  <form id="pdf-stamp-form" enctype="multipart/form-data">
+    <label for="pdf-file">Upload PDF:</label>
+    <input type="file" id="pdf-file" name="pdf" accept="application/pdf" required><br><br>
+
+    <button type="button" id="process-pdf">Stamp and Download PDF</button>
+  </form>
+
+  <script>
+    document.getElementById("process-pdf").addEventListener("click", async () => {
+      const formData = new FormData();
+      const fileInput = document.getElementById("pdf-file");
+      if (!fileInput.files[0]) {
+        alert("Please upload a PDF.");
+        return;
+      }
+
+      formData.append("pdf", fileInput.files[0]);
+
+      // Send the PDF to the backend for processing
+      const response = await fetch("http://localhost:5000/upload-pdf", {
+        method: "POST",
+        body: formData,
+      });
+
+      // Handle response: download the processed PDF
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "stamped.pdf";
+        a.click();
+      } else {
+        alert("Failed to process PDF.");
+      }
+    });
+  </script>
+</body>
+</html>
